@@ -8,7 +8,7 @@ use axis::resampler;
 fn main() {
     env_logger::init();
     if let Err(e) = run() {
-        eprintln!("Error: {}", e);
+        log::error!("Error: {}", e);
         process::exit(1);
     }
 }
