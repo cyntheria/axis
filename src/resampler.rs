@@ -38,7 +38,12 @@ fn get_cache_path(source: &str) -> PathBuf {
     cache
 }
 
-pub fn resample(args: &ResamplerArgs, input_samples: &[f64], sample_rate: u32) -> Result<Vec<f64>> {
+pub fn resample(
+    args: &ResamplerArgs, 
+    input_samples: &[f64], 
+    sample_rate: u32,
+    plugins: &mut [&mut dyn crate::api::AxisPlugin]
+) -> Result<Vec<f64>> {
     if input_samples.is_empty() {
         return Ok(vec![]);
     }
@@ -165,10 +170,25 @@ pub fn resample(args: &ResamplerArgs, input_samples: &[f64], sample_rate: u32) -
         }
     }
 
-    let spec_r = decode_spectral_envelope(&mgc_render, render_length as i32, fs, features.fft_size);
-    let ap_r = decode_aperiodicity(&bap_render, render_length as i32, fs);
-    let mut syn = synthesis(&f0_render, &spec_r, &ap_r, FRAME_PERIOD, fs);
+    let mut f0_p = f0_render;
+    let mut spec_p = mgc_render;
+    let mut ap_p = bap_render;
+
+    for plugin in plugins.iter_mut() {
+        plugin.process_features(&mut f0_p, &mut spec_p, &mut ap_p, sample_rate)?;
+    }
+
+    let spec_r = decode_spectral_envelope(&spec_p, render_length as i32, fs, features.fft_size);
+    let ap_r = decode_aperiodicity(&ap_p, render_length as i32, fs);
+    let mut syn = synthesis(&f0_p, &spec_r, &ap_r, FRAME_PERIOD, fs);
+
+    for plugin in plugins.iter_mut() {
+        plugin.process_audio(&mut syn, sample_rate)?;
+    }
+
     apply_volume(&mut syn, args.volume);
+    
+    let _ = crate::filter::apply_vocal_enhancement(&mut syn, sample_rate);
     
     info!("Resampling complete. Output: {} samples", syn.len());
     Ok(syn)
