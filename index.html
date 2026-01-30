@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AXIS - CLI Reference</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<table width="780" border="0" align="center" cellpadding="0" cellspacing="0" class="main-table">
+    <tr>
+        <td colspan="2" class="header-cell">
+            <a href="index.html">
+                <img src="AXIS_White.png" width="250" height="120" border="0" alt="AXIS">
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2" class="top-nav">
+            <a href="index.html">Home</a> | 
+            <a href="https://github.com/cyntheria/axis">GitHub Repository</a> | 
+            <a href="https://github.com/cyntheria/axis/releases">Releases</a> | 
+            <a href="https://github.com/cyntheria/axis/blob/main/LICENSE">License</a> | 
+            <a href="https://github.com/cyntheria/axis/issues">Bug Tracker</a>
+        </td>
+    </tr>
+    <tr>
+        <td width="175" valign="top" class="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-header">Resources</div>
+                <ul>
+                    <li><a href="https://github.com/cyntheria/axis">Source Code</a></li>
+                    <li><a href="https://github.com/cyntheria/axis/releases/tag/v0.1.0">Download v0.1.0</a></li>
+                    <li><a href="cli.html">CLI Reference</a></li>
+                    <li><a href="utsu.html">UTSU Integration</a></li>
+                </ul>
+            </div>
+            
+            <div class="sidebar-section">
+                <div class="sidebar-header">Project Specs</div>
+                <table width="100%" cellpadding="2" cellspacing="0" class="info-table">
+                    <tr><td>Version:</td><td>0.1.0</td></tr>
+                    <tr><td>Language:</td><td>Rust</td></tr>
+                    <tr><td>Platform:</td><td>Linux ELF</td></tr>
+                    <tr><td>License:</td><td>LGPL-3.0</td></tr>
+                </table>
+            </div>
+
+            <div class="sidebar-section" style="text-align: center;">
+                <div class="sidebar-header">Blinkies</div>
+                <div class="sidebar-content">
+                    <img src="https://i.imgur.com/xiBRlvs.gif" border="0"><br>
+                    <img src="https://i.imgur.com/SdzvAq9.gif" border="0" style="margin-top:5px;">
+                </div>
+            </div>
+        </td>
+        <td valign="top" class="content-area">
+            <h2>Command Line Reference</h2>
+            <p>AXIS follows the standard UTAU resampler interface. It is designed to be called by a host application, but can be used manually for testing synthesis quality.</p>
+
+            <h3>Basic Usage</h3>
+            <div class="terminal">
+                ./axis [input] [output] [pitch] [velocity] [flags] [offset] [length]
+            </div>
+
+            <h3>Supported Flags (v0.1.0)</h3>
+            <table width="100%" cellpadding="4" cellspacing="1" class="data-table">
+                <tr class="data-header">
+                    <td width="20%">Flag</td>
+                    <td>Description</td>
+                    <td>Range</td>
+                </tr>
+                <tr class="data-row">
+                    <td><strong>g</strong></td>
+                    <td>Gender: Shifts formants to simulate masculine or feminine tones.</td>
+                    <td>g-100 to g100</td>
+                </tr>
+                <tr class="data-row">
+                    <td><strong>B</strong></td>
+                    <td>Breathiness: Adjusts the noise floor of the WORLD synthesis.</td>
+                    <td>B0 to B100</td>
+                </tr>
+            </table>
+
+            <h3>Technical Implementation</h3>
+            <p>AXIS utilizes the <strong>WORLD</strong> vocoder via the <code>rsworld</code> crate. This allows for high-fidelity extraction of F0, spectral envelopes, and aperiodicity, which are then reconstructed at the target pitch with high precision.</p>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2" class="footer">
+            Copyright &copy; 2026 Cyntheria, All rights reserved.
+        </td>
+    </tr>
+</table>
+
+</body>
+</html>
