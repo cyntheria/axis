@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="AXIS_White.png" width="400" alt="AXIS">
+</p>
+
 # AXIS
 
 ![Rust](https://img.shields.io/badge/rust-stable-brightgreen.svg)
