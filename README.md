@@ -6,6 +6,7 @@
 
 ![Rust](https://img.shields.io/badge/rust-stable-brightgreen.svg)
 ![License](https://img.shields.io/badge/license-LGPL--3.0-blue.svg)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/9bf4da58fe5c463fb1a92de324e50aca)](https://app.codacy.com/gh/cyntheria/axis/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 
 **AXIS** is a high-performance, modern UTAU resampler written entirely in Rust. It utilizes the WORLD vocoder to provide (mostly) high-quality vocal synthesis, flexible pitch manipulation, and a robust plugin architecture.
 
