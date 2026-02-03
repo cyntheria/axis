@@ -1,0 +1,48 @@
+name: Build and Release
+on:
+  push:
+    tags:
+      - 'v*' 
+
+jobs:
+  release:
+    name: build - ${{ matrix.platform.name }}
+    runs-on: ${{ matrix.platform.os }}
+    permissions:
+      contents: write 
+    strategy:
+      matrix:
+        platform:
+          - { name: Linux-x64, os: ubuntu-latest, target: x86_64-unknown-linux-gnu, bin: axis-linux-x64 }
+          - { name: Mac-x64,   os: macos-13,      target: x86_64-apple-darwin,      bin: axis-mac-x64 }
+          - { name: Mac-ARM,   os: macos-latest,  target: aarch64-apple-darwin,     bin: axis-mac-arm64 }
+          - { name: Win-x64,   os: windows-latest, target: x86_64-pc-windows-msvc,  bin: axis-win-x64.exe }
+          - { name: Win-x32,   os: windows-latest, target: i686-pc-windows-msvc,    bin: axis-win-x32.exe }
+
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+
+      - name: install rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.platform.target }}
+
+      - name: build binary
+        run: cargo build --release --target ${{ matrix.platform.target }}
+
+      - name: rename binary
+        shell: bash
+        run: |
+          if [ "${{ matrix.platform.os }}" = "windows-latest" ]; then
+            mv target/${{ matrix.platform.target }}/release/axis.exe ./${{ matrix.platform.bin }}
+          else
+            mv target/${{ matrix.platform.target }}/release/axis ./${{ matrix.platform.bin }}
+          fi
+
+      - name: upload to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ matrix.platform.bin }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
