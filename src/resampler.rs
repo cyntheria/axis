@@ -33,7 +33,7 @@ fn get_cache_path(source: &str) -> PathBuf {
     let path = Path::new(source);
     let mut cache = path.to_path_buf();
     let mut name = path.file_name().unwrap_or_default().to_os_string();
-    name.push(".axis_cache");
+    name.push(".axxf");
     cache.set_file_name(name);
     cache
 }
@@ -178,8 +178,18 @@ pub fn resample(
         plugin.process_features(&mut f0_p, &mut spec_p, &mut ap_p, sample_rate)?;
     }
 
-    let spec_r = decode_spectral_envelope(&spec_p, render_length as i32, fs, features.fft_size);
-    let ap_r = decode_aperiodicity(&ap_p, render_length as i32, fs);
+    let mut spec_r = decode_spectral_envelope(&spec_p, render_length as i32, fs, features.fft_size);
+    for frame in spec_r.iter_mut() {
+        crate::util::smooth_spectrum(frame, 3);
+    }
+
+    let mut ap_r = decode_aperiodicity(&ap_p, render_length as i32, fs);
+    for i in 0..render_length {
+        if f0_p[i] == 0.0 {
+            for val in ap_r[i].iter_mut() { *val = 1.0; }
+        }
+    }
+
     let mut syn = synthesis(&f0_p, &spec_r, &ap_r, FRAME_PERIOD, fs);
 
     for plugin in plugins.iter_mut() {

@@ -1,127 +1,150 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>AXIS - Rust-based UTAU Resampler (LGPL-3.0)</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
-<table width="780" border="0" align="center" cellpadding="0" cellspacing="0" class="main-table">
-    <tr>
-        <td colspan="2" class="header-cell">
-            <a href="index.html">
-                <img src="AXIS_White.png" width="250" height="120" border="0" alt="AXIS RESAMPLER - Rust Powered Synthesis">
-            </a>
-        </td>
-    </tr>
-    <tr>
-        <td colspan="2" class="top-nav">
-            <a href="index.html">Home</a> | 
-            <a href="https://github.com/cyntheria/axis">GitHub Repository</a> | 
-            <a href="https://github.com/cyntheria/axis/releases">Releases</a> | 
-            <a href="https://github.com/cyntheria/axis/blob/main/LICENSE">License</a> | 
-            <a href="https://github.com/cyntheria/axis/issues">Bug Tracker</a> |
-             <a href="/config.html">Plugins and Configuration</a> 
-        </td>
-    </tr>
-    <tr>
-        <td width="175" valign="top" class="sidebar">
-            <div class="sidebar-section">
-                <div class="sidebar-header">Resources</div>
-                <ul>
-                    <li><a href="https://github.com/cyntheria/axis">Source Code</a></li>
-                    <li><a href="https://github.com/cyntheria/axis/releases/tag/v0.1.0">Download v0.1.0</a></li>
-                </ul>
-            </div>
-            
-            <div class="sidebar-section">
-                <div class="sidebar-header">Project Specs</div>
-                <table width="100%" cellpadding="2" cellspacing="0" class="info-table">
-                    <tr><td>Version:</td><td>0.1.1 Alpha</td></tr>
-                    <tr><td>Language:</td><td>Rust</td></tr>
-                    <tr><td>Platform:</td><td>Linux (ELF)</td></tr>
-                    <tr><td>License:</td><td>LGPL-3.0</td></tr>
+    <table width="780" border="0" align="center" cellpadding="0" cellspacing="0" class="main-table">
+        <tr>
+            <td colspan="2" class="header-cell">
+                <a href="index.html">
+                    <img src="AXIS_White.png" width="250" height="120" border="0"
+                        alt="AXIS RESAMPLER - Rust Powered Synthesis">
+                </a>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" class="top-nav">
+                <a href="index.html">Home</a> |
+                <a href="https://github.com/cyntheria/axis">GitHub Repository</a> |
+                <a href="https://github.com/cyntheria/axis/releases">Releases</a> |
+                <a href="https://github.com/cyntheria/axis/blob/main/LICENSE">License</a> |
+                <a href="https://github.com/cyntheria/axis/issues">Bug Tracker</a> |
+                <a href="/config.html">Plugins and Configuration</a>
+            </td>
+        </tr>
+        <tr>
+            <td width="175" valign="top" class="sidebar">
+                <div class="sidebar-section">
+                    <div class="sidebar-header">Resources</div>
+                    <ul>
+                        <li><a href="https://github.com/cyntheria/axis">Source Code</a></li>
+                        <li><a href="https://github.com/cyntheria/axis/releases/tag/v0.1.0">Download v0.1.0</a></li>
+                    </ul>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-header">Project Specs</div>
+                    <table width="100%" cellpadding="2" cellspacing="0" class="info-table">
+                        <tr>
+                            <td>Version:</td>
+                            <td>0.1.1 Alpha</td>
+                        </tr>
+                        <tr>
+                            <td>Language:</td>
+                            <td>Rust</td>
+                        </tr>
+                        <tr>
+                            <td>Platform:</td>
+                            <td>Linux (ELF)</td>
+                        </tr>
+                        <tr>
+                            <td>License:</td>
+                            <td>LGPL-3.0</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-header">Compatibility</div>
+                    <div class="sidebar-content">
+                        <strong>Primary:</strong> Linux<br>
+                        <strong>Host:</strong> OpenUtau<br>
+                        <strong>Host:</strong> UTSU <br>
+                    </div>
+                </div>
+
+                <div class="sidebar-section" style="text-align: center;">
+                    <div class="sidebar-header">Blinkies</div>
+                    <div class="sidebar-content">
+                        <img src="https://i.imgur.com/xiBRlvs.gif" border="0"></a><br>
+                        <img src="https://i.imgur.com/SdzvAq9.gif" border="0" style="margin-top:5px;">
+                    </div>
+                </div>
+            </td>
+            <td valign="top" class="content-area">
+                <h2>AXIS Resampler</h2>
+                <p class="tagline">A blazingly-fast, high-fidelity UTAU resampler written in Rust.</p>
+
+                <p>AXIS is meant to be highly advanced yet lightweight with high amount of portability and speed, It
+                    uses the WORLD vocoder (via rsworld), AXIS can run on OpenUtau and UTSU (possibly UTAU aswell,
+                    untested.)</p>
+
+                <table width="100%" cellpadding="4" cellspacing="1" class="data-table">
+                    <tr class="data-header">
+                        <td>Component</td>
+                        <td>Version</td>
+                        <td>License</td>
+                        <td>Source</td>
+                    </tr>
+                    <tr class="data-row">
+                        <td>Core Engine</td>
+                        <td>0.1.1 Alpha</td>
+                        <td>LGPL-3.0</td>
+                        <td><a href="https://github.com/cyntheria/axis/releases">[Link]</a></td>
+                    </tr>
+                    <tr class="data-row">
+                        <td>Rust Crate</td>
+                        <td>0.1.1-alpha</td>
+                        <td>LGPL-3.0</td>
+                        <td><a href="https://github.com/cyntheria/axis">[GitHub]</a></td>
+                    </tr>
                 </table>
-            </div>
 
-            <div class="sidebar-section">
-                <div class="sidebar-header">Compatibility</div>
-                <div class="sidebar-content">
-                    <strong>Primary:</strong> Linux<br>
-                    <strong>Host:</strong> OpenUtau<br>
-                    <strong>Host:</strong> UTSU <br>
+                <h3>Open Source & Integration</h3>
+                <p>AXIS is licensed under the <strong>GNU Lesser General Public License v3.0</strong>. This ensures the
+                    engine remains free and open while allowing for seamless integration as a library or binary for both
+                    <strong>OpenUtau</strong> and <strong>UTSU</strong>.</p>
+
+                <div class="terminal">
+                    $ git clone https://github.com/cyntheria/axis.git<br>
+                    $ cd axis && cargo build --release
                 </div>
-            </div>
 
-            <div class="sidebar-section" style="text-align: center;">
-                <div class="sidebar-header">Blinkies</div>
-                <div class="sidebar-content">
-                    <img src="https://i.imgur.com/xiBRlvs.gif" border="0"></a><br>
-                    <img src="https://i.imgur.com/SdzvAq9.gif" border="0" style="margin-top:5px;">
+                <div class="news-box">
+                    <div class="news-header">Latest News: v0.1.2-rc1</div>
+                    <div class="news-body">
+                        <p>Bump to v0.1.2-rc1, features include:</p>
+                        <li> WORLD synthesis refinition </li>
+                        <li> spectral smoothing</li>
+                        <li> reduce metallic artifacts</li>
+                        <li> change cache extension to .axxf</li>
+                        <li> phanse randomization in unvoiced region</li>
+                    </div>
                 </div>
-            </div>
-        </td>
-        <td valign="top" class="content-area">
-            <h2>AXIS Resampler</h2>
-            <p class="tagline">A blazingly-fast, high-fidelity UTAU resampler written in Rust.</p>
-            
-            <p>AXIS is meant to be highly advanced yet lightweight with high amount of portability and speed, It uses the WORLD vocoder (via rsworld), AXIS can run on OpenUtau and UTSU (possibly UTAU aswell, untested.)</p>
 
-            <table width="100%" cellpadding="4" cellspacing="1" class="data-table">
-                <tr class="data-header">
-                    <td>Component</td>
-                    <td>Version</td>
-                    <td>License</td>
-                    <td>Source</td>
-                </tr>
-                <tr class="data-row">
-                    <td>Core Engine</td>
-                    <td>0.1.1 Alpha</td>
-                    <td>LGPL-3.0</td>
-                    <td><a href="https://github.com/cyntheria/axis/releases">[Link]</a></td>
-                </tr>
-                <tr class="data-row">
-                    <td>Rust Crate</td>
-                    <td>0.1.1-alpha</td>
-                    <td>LGPL-3.0</td>
-                    <td><a href="https://github.com/cyntheria/axis">[GitHub]</a></td>
-                </tr>
-            </table>
-
-            <h3>Open Source & Integration</h3>
-            <p>AXIS is licensed under the <strong>GNU Lesser General Public License v3.0</strong>. This ensures the engine remains free and open while allowing for seamless integration as a library or binary for both <strong>OpenUtau</strong> and <strong>UTSU</strong>.</p>
-            
-            <div class="terminal">
-                $ git clone https://github.com/cyntheria/axis.git<br>
-                $ cd axis && cargo build --release
-            </div>
-
-            <div class="news-box">
-                <div class="news-header">Latest News: v0.1.1-alpha</div>
-                <div class="news-body">
-                    Version 0.1.1-alpha is out! Features include:
-                    A plugin API: to make your plugins and extend AXIS without touching the source code
-                    Configuration: a KDL document that defines the AXIS configuration )<code>~/.config/axis/config.kdl</code>)
-                </div>
-            </div>
-
-            <h3>Key Features</h3>
-            <ul>
-                <li>High-fidelity spectral analysis and synthesis. </li>
-                <li>Written in Rust for maximum performance.</li>
-                <li>Native Linux support.</li>
-                <li>Plugins and Configuration</li>
-            </ul>
-        </td>
-    </tr>
-    <tr>
-        <td colspan="2" class="footer">
-            Copyright &copy; 2026 Cyntheria, All rights reserved.<br>
-            AXIS is free software licensed under the <a href="https://www.gnu.org/licenses/lgpl-3.0.en.html" style="color:#ffffff">LGPL-3.0</a>.
-        </td>
-    </tr>
-</table>
+                <h3>Key Features</h3>
+                <ul>
+                    <li>High-fidelity spectral analysis and synthesis. </li>
+                    <li>Written in Rust for maximum performance.</li>
+                    <li>Native Linux support.</li>
+                    <li>Plugins and Configuration</li>
+                </ul>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" class="footer">
+                Copyright &copy; 2026 Cyntheria, All rights reserved.<br>
+                AXIS is free software licensed under the <a href="https://www.gnu.org/licenses/lgpl-3.0.en.html"
+                    style="color:#ffffff">LGPL-3.0</a>.
+            </td>
+        </tr>
+    </table>
 
 </body>
-</html>
 
+</html>

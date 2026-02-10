@@ -1,6 +1,6 @@
 [package]
 name = "axis"
-version = "0.1.1-alpha"
+version = "0.1.2-rc1"
 edition = "2021"
 
 [dependencies]
