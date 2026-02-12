@@ -29,20 +29,21 @@ fn apply_volume(samples: &mut [f64], volume: f64) {
     }
 }
 
-fn get_cache_path(source: &str) -> PathBuf {
+fn get_analysis_path(source: &str) -> PathBuf {
     let path = Path::new(source);
-    let mut cache = path.to_path_buf();
+    let mut analysis = path.to_path_buf();
     let mut name = path.file_name().unwrap_or_default().to_os_string();
     name.push(".axxf");
-    cache.set_file_name(name);
-    cache
+    analysis.set_file_name(name);
+    analysis
 }
 
 pub fn resample(
     args: &ResamplerArgs, 
     input_samples: &[f64], 
     sample_rate: u32,
-    plugins: &mut [&mut dyn crate::api::AxisPlugin]
+    plugins: &mut [&mut dyn crate::api::AxisPlugin],
+    config: &crate::api::AxisConfig,
 ) -> Result<Vec<f64>> {
     if input_samples.is_empty() {
         return Ok(vec![]);
@@ -57,11 +58,11 @@ pub fn resample(
     debug!("Flags applied: gender={}, breathiness={}", flags.gender, flags.breathiness);
 
     let fs = sample_rate as i32;
-    let cache_path = get_cache_path(&args.in_file);
+    let analysis_path = get_analysis_path(&args.in_file);
     
-    let features = if cache_path.exists() {
-        info!("Loading cached features from {}", cache_path.display());
-        let mut f = File::open(&cache_path)?;
+    let features = if analysis_path.exists() {
+        info!("Loading analysis data from {}", analysis_path.display());
+        let mut f = File::open(&analysis_path)?;
         let mut buf = Vec::new();
         f.read_to_end(&mut buf)?;
         bincode::deserialize::<WorldFeatures>(&buf)?
@@ -92,7 +93,7 @@ pub fn resample(
 
         let feats = WorldFeatures { f0, mgc, bap, source_base_hz, fft_size };
         let bin = bincode::serialize(&feats)?;
-        let mut f = File::create(&cache_path)?;
+        let mut f = File::create(&analysis_path)?;
         f.write_all(&bin)?;
         feats
     };
@@ -190,7 +191,15 @@ pub fn resample(
         }
     }
 
-    let mut syn = synthesis(&f0_p, &spec_r, &ap_r, FRAME_PERIOD, fs);
+    let use_stydl = config.general.as_ref().and_then(|g| g.stydl).unwrap_or(true) || args.flags.contains("S");
+
+    let mut syn = if use_stydl {
+        info!("Using STYDL vocoder for synthesis...");
+        let mut vocoder = crate::vocoder::stydl::StydlVocoder::new(sample_rate, features.fft_size as usize);
+        vocoder.process(&f0_p, &spec_r, &ap_r, input_samples)
+    } else {
+        synthesis(&f0_p, &spec_r, &ap_r, FRAME_PERIOD, fs)
+    };
 
     for plugin in plugins.iter_mut() {
         plugin.process_audio(&mut syn, sample_rate)?;

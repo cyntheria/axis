@@ -17,12 +17,29 @@ fn main() {
 
 fn run() -> Result<()> {
     let cli = Cli::parse();
-
     let proj_dirs = ProjectDirs::from("com", "cyntheria", "axis")
         .context("Could not determine project directories")?;
-    let db_path = proj_dirs.data_dir().join("plugin.db");
-    std::fs::create_dir_all(proj_dirs.data_dir())?;
+    let data_dir = proj_dirs.data_dir();
+    let config_dir = proj_dirs.config_dir();
+    let config_path = config_dir.join("config.kdl");
+    let db_path = data_dir.join("plugin.db");
+    std::fs::create_dir_all(data_dir)?;
+    std::fs::create_dir_all(config_dir)?;
     
+    let config = if config_path.exists() {
+        axis::api::AxisConfig::load(&config_path).unwrap_or_default()
+    } else {
+        axis::api::AxisConfig::default()
+    };
+
+    let log_enabled = config.general.as_ref().and_then(|g| g.log).unwrap_or(true);
+    if log_enabled {
+        if std::env::var("RUST_LOG").is_err() {
+            std::env::set_var("RUST_LOG", "info");
+        }
+        env_logger::try_init().ok();
+    }
+
     let db = PluginDatabase::open(&db_path)?;
 
     if let Some(command) = cli.command {
@@ -93,12 +110,12 @@ fn run() -> Result<()> {
         .with_context(|| format!("Failed to load audio from {}", args.in_file))?;
     
     if samples.is_empty() {
-        audio::save_audio(&args.out_file, &[], sample_rate)
+        audio::save_audio(&args.out_file, &Vec::new(), sample_rate)
             .with_context(|| format!("Failed to save audio to {}", args.out_file))?;
         return Ok(());
     }
     
-    let resampled = resampler::resample(&args, &samples, sample_rate, &mut plugin_refs)
+    let resampled = resampler::resample(&args, &samples, sample_rate, &mut plugin_refs, &config)
         .context("Failed to resample audio")?;
     
     audio::save_audio(&args.out_file, &resampled, sample_rate)

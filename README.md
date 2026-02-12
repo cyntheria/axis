@@ -13,8 +13,15 @@
 ## Features
 
 - **Plugin System**: Extend AXIS with custom DSP or feature manipulation modules using shared libraries (`.so`).
-- **Disk Caching**: Automatic feature extraction caching for near-instant rendering on repeat notes
+- **Frequency Analysis Files (.axxf)**: AXIS stores high-precision spectral data and F0 in `.axxf` files (similar to UTAU `.frq`, moresampler `.llsm`, or model4 `.frc`). This ensures perfectly consistent and near-instant rendering on repeat notes.
 - **Modern Config**: Plugin management via SQLite and configuration via KDL.
+- **Persistent Settings**: Configure logging and default vocoder behavior in `config.kdl`:
+  ```kdl
+  general {
+      log true     // Enable always-on logging (default)
+      stydl true   // Use STYDL synthesis by default (default true)
+  }
+  ```
 
 ## Installation
 

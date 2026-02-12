@@ -5,3 +5,4 @@ pub mod resampler;
 pub mod flags;
 pub mod filter;
 pub mod util;
+pub mod vocoder;

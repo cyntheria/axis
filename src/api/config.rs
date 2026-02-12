@@ -14,7 +14,11 @@ pub struct GeneralConfig {
     #[knuffel(property)]
     pub threads: Option<i32>,
     #[knuffel(property)]
-    pub cache_enabled: Option<bool>,
+    pub analysis_enabled: Option<bool>,
+    #[knuffel(property)]
+    pub log: Option<bool>,
+    #[knuffel(property)]
+    pub stydl: Option<bool>,
 }
 
 #[derive(Decode, Debug, Clone, Serialize, Deserialize)]
@@ -41,12 +45,16 @@ impl AxisConfig {
         let config = knuffel::parse("config.kdl", &content)?;
         Ok(config)
     }
+}
 
-    pub fn default() -> Self {
+impl Default for AxisConfig {
+    fn default() -> Self {
         Self {
             general: Some(GeneralConfig {
-                threads: Some(0), // Auto
-                cache_enabled: Some(true),
+                threads: Some(0),
+                analysis_enabled: Some(true),
+                log: Some(true),
+                stydl: Some(true),
             }),
             plugins: Vec::new(),
         }

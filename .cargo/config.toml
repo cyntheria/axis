@@ -1,0 +1,16 @@
+[build]
+# This ensures we build for a generic x86-64 baseline rather than 'native'
+# Great for universal binaries that run on older CPUs.
+rustflags = ["-C", "target-cpu=x86-64"]
+
+[target.x86_64-pc-windows-gnu]
+# Generic flags for Windows GNU
+rustflags = ["-C", "target-cpu=x86-64"]
+
+[target.x86_64-pc-windows-msvc]
+# Generic flags for Windows MSVC
+rustflags = ["-C", "target-cpu=x86-64"]
+
+[target.x86_64-unknown-linux-musl]
+# Generic flags for static Linux
+rustflags = ["-C", "target-cpu=x86-64", "-C", "target-feature=+crt-static"]
