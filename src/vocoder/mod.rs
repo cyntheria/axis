@@ -4,5 +4,6 @@ pub mod synthesis;
 pub mod dio;
 pub mod trickresolve;
 pub mod d4c;
+pub mod hmm;
 
 pub use stydl::StydlVocoder;

@@ -76,11 +76,11 @@ pub fn resample(
         let mut spec = Vec::with_capacity(num_frames);
         let mut ap = Vec::with_capacity(num_frames);
 
-        // 1. F0 Estimation
+        // 1. F0 Estimation (raw)
         f0 = vocoder.f0_estimator.estimate(input_samples);
         f0.truncate(num_frames); // Align
 
-        // 2. Spectral & Aperiodicity Estimation
+        // 2. Spectral & Aperiodicity Estimation (uses raw F0)
         for i in 0..f0.len() {
             let start = i * hop_size;
             let end = (start + fft_size).min(input_samples.len());
@@ -89,6 +89,11 @@ pub fn resample(
             spec.push(vocoder.spectral_resolver.resolve(chunk, f0[i], fft_size));
             ap.push(vocoder.aperiodicity_estimator.estimate(chunk, f0[i], fft_size));
         }
+
+        // 3. HMM F0 Smoothing (Viterbi V/UV + median filter) — applied AFTER analysis
+        let hmm = crate::vocoder::hmm::VoicingHmm::new();
+        f0 = hmm.smooth_f0(&f0);
+        info!("HMM smoothed F0: {} frames", f0.len());
 
         let mut voiced_f0: Vec<f64> = f0.iter().cloned().filter(|&f| f > 40.0).collect();
         voiced_f0.sort_by(|a, b| a.partial_cmp(b).unwrap());

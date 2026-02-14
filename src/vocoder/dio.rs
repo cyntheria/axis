@@ -27,8 +27,9 @@ impl Dio {
         let min_lag = self.sample_rate as usize / 500;
         let max_lag = self.sample_rate as usize / 50;
         for lag in min_lag..max_lag {
+            if lag >= chunk.len() { break; }
             let mut corr = 0.0;
-            for i in 0..chunk.len() - lag {
+            for i in 0..chunk.len().saturating_sub(lag) {
                 corr += chunk[i] * chunk[i + lag];
             }
             if corr > max_corr {

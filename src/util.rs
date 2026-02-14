@@ -135,24 +135,6 @@ pub fn smoothstep(edge0: f64, edge1: f64, x: f64) -> f64 {
     t * t * (3.0 - 2.0 * t)
 }
 
-pub fn smooth_spectrum(spec: &mut [f64], window_size: usize) {
-    let len = spec.len();
-    if len < window_size || window_size <= 1 { return; }
-    
-    let temp = spec.to_vec();
-    let half = window_size / 2;
-    
-    for i in 0..len {
-        let start = i.saturating_sub(half);
-        let end = (i + half + 1).min(len);
-        let mut sum = 0.0;
-        for j in start..end {
-            sum += temp[j];
-        }
-        spec[i] = sum / (end - start) as f64;
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -192,5 +174,16 @@ mod tests {
         assert_eq!(smoothstep(0.0, 1.0, 0.0), 0.0);
         assert_eq!(smoothstep(0.0, 1.0, 1.0), 1.0);
         assert_eq!(smoothstep(0.0, 1.0, 0.5), 0.5);
+    }
+}
+
+pub fn smooth_spectrum(spec: &mut [f64], width: usize) {
+    if width <= 1 || spec.len() < width { return; }
+    let orig = spec.to_vec();
+    for i in 0..spec.len() {
+        let start = i.saturating_sub(width / 2);
+        let end = (i + width / 2).min(spec.len() - 1);
+        let sum: f64 = orig[start..=end].iter().sum();
+        spec[i] = sum / (end - start + 1) as f64;
     }
 }

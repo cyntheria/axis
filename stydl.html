@@ -68,15 +68,26 @@
                         (HNM)</strong>
                     that provides smooth, crystal-clear vocals even at extreme pitch and time scales.</p>
 
-                <h3 id="engine">Sinusoidal Synthesis Engine</h3>
-                <p>The core synthesis engine uses a sum-of-sines approach for the harmonic (voiced) component and a
-                    sophisticated <strong>Constant Overlap-Add (COLA)</strong> noise engine for the aperiodic (unvoiced)
-                    component.
-                </p>
+                <h3 id="engine">Dual-Stream Synthesis Engine</h3>
+                <p>The core synthesis engine implements a hybrid <strong>Dual-Stream</strong> approach that separates
+                    periodic and stochastic components for maximum naturalness:</p>
                 <ul>
-                    <li><strong>Sub-sample Accuracy:</strong> Precise phase tracking for high-frequency stability.</li>
-                    <li><strong>Coherent Phase:</strong> Ensures minimal phasing artifacts between frames.</li>
-                    <li><strong>Unified Noise:</strong> Eliminates static floor artifacts.</li>
+                    <li><strong>Sinusoidal Stream:</strong> High-fidelity sum-of-sines with independent phase
+                        accumulators to ensure coherence.</li>
+                    <li><strong>Subtractive Noise:</strong> White noise shaped by the spectral envelope, providing
+                        artifact-free consonants.</li>
+                    <li><strong>Stochastic Jitter:</strong> RNG-based phase micro-variations to prevent "frozen" or
+                        "metallic" textures.</li>
+                </ul>
+
+                <h3 id="hmm">HMM Pitch & Voicing Analysis</h3>
+                <p>STYDL now includes a robust Hidden Markov Model (HMM) layer that performs global optimization on
+                    the pitch contour:</p>
+                <ul>
+                    <li><strong>Viterbi Decisions:</strong> Solves the Voiced/Unvoiced state sequence to prevent
+                        "humming" on consonants.</li>
+                    <li><strong>Multi-pass Smoothing:</strong> Combines HMM interpolation with Median filtering to
+                        eliminate pitch detection spikes.</li>
                 </ul>
 
                 <h3 id="analyser">Integration Example</h3>

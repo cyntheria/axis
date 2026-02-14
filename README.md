@@ -12,7 +12,8 @@
 
 ## Features
 
-- **STYDL Sinusoidal Engine**: Next-generation spectral synthesis with sub-sample accuracy for high-pitch stability and unified COLA noise for natural consonants.
+- **STYDL Dual-Stream Engine**: Next-generation hybrid synthesis separating voiced (sinusoidal) and unvoiced (subtractive noise) components. Features independent phase accumulators and temporal crossfading for artifact-free rendering.
+- **HMM-Based Voicing**: Integrated Hidden Markov Model (HMM) using Viterbi decoding for robust voiced/unvoiced decisions and multi-pass F0 smoothing.
 - **Pure Rust Integration**: Zero dependencies on legacy libraries like WORLD. 100% standalone and cross-platform (Linux, Windows, macOS, FreeBSD).
 - **Plugin System**: Extend AXIS with custom DSP or feature manipulation modules using shared libraries (`.so`).
 - **Frequency Analysis Files (.axxf)**: AXIS stores high-precision spectral data in `.axxf` files, ensuring perfectly consistent and near-instant rendering on repeat notes.
@@ -49,6 +50,25 @@ AXIS includes a built-in CLI for managing plugins:
 - **Register a plugin**: `axis plugin add path/to/plugin.so`
 - **Enable/Disable**: `axis plugin enable "Plugin Name"` / `axis plugin disable "Plugin Name"`
 - **Remove**: `axis plugin remove "Plugin Name"`
+
+### HMM API (Voicing & Smoothing)
+
+AXIS includes a Hidden Markov Model (HMM) implementation for resolving ambiguous pitch detection and making robust voiced/unvoiced decisions.
+
+- **Viterbi Decoding**: Finds the most likely sequence of V/UV states across the entire sample.
+- **Pitch Smoothing**: Interpolates voiced segments and removes spurious spikes using a combined HMM + Median filter strategy.
+
+```rust
+use axis::vocoder::hmm::VoicingHmm;
+
+let hmm = VoicingHmm::new();
+
+// Perform V/UV decoding
+let voicing = hmm.decode(&f0_raw);
+
+// Get smoothed F0
+let f0_smooth = hmm.smooth_f0(&f0_raw);
+```
 
 ## Developer API
 
