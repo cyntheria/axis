@@ -8,26 +8,21 @@
 ![License](https://img.shields.io/badge/license-LGPL--3.0-blue.svg)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/9bf4da58fe5c463fb1a92de324e50aca)](https://app.codacy.com/gh/cyntheria/axis/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 
-**AXIS** is a high-performance, modern UTAU resampler written entirely in Rust. It utilizes the WORLD vocoder to provide (mostly) high-quality vocal synthesis, flexible pitch manipulation, and a robust plugin architecture.
+**AXIS** is a high-performance, modern UTAU resampler written entirely in Rust. It features the **STYDL Sinusoidal Engine**, a standalone high-fidelity synthesis model that provides crystal-clear vocals without external C/C++ dependencies.
 
 ## Features
 
+- **STYDL Sinusoidal Engine**: Next-generation spectral synthesis with sub-sample accuracy for high-pitch stability and unified COLA noise for natural consonants.
+- **Pure Rust Integration**: Zero dependencies on legacy libraries like WORLD. 100% standalone and cross-platform (Linux, Windows, macOS, FreeBSD).
 - **Plugin System**: Extend AXIS with custom DSP or feature manipulation modules using shared libraries (`.so`).
-- **Frequency Analysis Files (.axxf)**: AXIS stores high-precision spectral data and F0 in `.axxf` files (similar to UTAU `.frq`, moresampler `.llsm`, or model4 `.frc`). This ensures perfectly consistent and near-instant rendering on repeat notes.
+- **Frequency Analysis Files (.axxf)**: AXIS stores high-precision spectral data in `.axxf` files, ensuring perfectly consistent and near-instant rendering on repeat notes.
 - **Modern Config**: Plugin management via SQLite and configuration via KDL.
-- **Persistent Settings**: Configure logging and default vocoder behavior in `config.kdl`:
-  ```kdl
-  general {
-      log true     // Enable always-on logging (default)
-      stydl true   // Use STYDL synthesis by default (default true)
-  }
-  ```
 
 ## Installation
 
 ### Prerequisites
 - [Rust](https://www.rust-lang.org/tools/install) (stable)
-- SQLite dev libraries (for `rusqlite`)
+- SQLite dev libraries (for `rusqlite` plugin management)
 
 ### Building
 ```bash
@@ -57,8 +52,8 @@ AXIS includes a built-in CLI for managing plugins:
 
 ## Developer API
 
-AXIS provides a trait-based API for creating plugins. Plugins can hook into two stages of the pipeline:
-1. **`process_features`**: Modify WORLD parameters (F0, MGC, BAP) before synthesis.
+AXIS provides a trait-based API for creating plugins. Plugins can hook into the STYDL pipeline:
+1. **`process_features`**: Modify spectral features (F0, Spectrum, Aperiodicity) before synthesis.
 2. **`process_audio`**: Modify the final waveform after synthesis.
 
 ### Example Plugin
