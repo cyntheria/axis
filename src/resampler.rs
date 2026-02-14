@@ -1,9 +1,8 @@
-use anyhow::{Result};
+use anyhow::Result;
 use crate::args::ResamplerArgs;
 use crate::util::{decode_pitchbend, midi_to_hz, arange, linspace, lerp};
 use crate::flags::Flags;
-use rsworld::{harvest, stonemask, cheaptrick, d4c, synthesis, code_spectral_envelope, decode_spectral_envelope, code_aperiodicity, decode_aperiodicity};
-use rsworld_sys::{HarvestOption, CheapTrickOption, D4COption};
+use crate::vocoder::stydl::StydlVocoder;
 use std::str::FromStr;
 use log::{info, debug};
 use serde::{Serialize, Deserialize};
@@ -14,12 +13,12 @@ use std::io::{Read, Write};
 const FRAME_PERIOD: f64 = 5.0;
 
 #[derive(Serialize, Deserialize)]
-struct WorldFeatures {
+struct AxisFeatures {
     f0: Vec<f64>,
-    mgc: Vec<Vec<f64>>,
-    bap: Vec<Vec<f64>>,
+    spec: Vec<Vec<f64>>,
+    ap: Vec<Vec<f64>>,
     source_base_hz: f64,
-    fft_size: i32,
+    fft_size: usize,
 }
 
 fn apply_volume(samples: &mut [f64], volume: f64) {
@@ -43,21 +42,20 @@ pub fn resample(
     input_samples: &[f64], 
     sample_rate: u32,
     plugins: &mut [&mut dyn crate::api::AxisPlugin],
-    config: &crate::api::AxisConfig,
+    _config: &crate::api::AxisConfig,
 ) -> Result<Vec<f64>> {
     if input_samples.is_empty() {
         return Ok(vec![]);
     }
 
-    info!("Starting resampling: pitch={}Hz (MIDI {}), tempo={}", midi_to_hz(args.pitch as f64), args.pitch, args.tempo);
+    info!("Starting resampling [STYDL]: pitch={}Hz (MIDI {}), tempo={}", midi_to_hz(args.pitch as f64), args.pitch, args.tempo);
     
-    let velocity = (1.0 - args.velocity / 100.0).exp2();
+    let velocity = (1.0 - args.velocity as f64 / 100.0).exp2();
     let modulation = args.modulation / 100.0;
     let flags = Flags::from_str(&args.flags).unwrap_or(Flags { gender: 0.0, breathiness: 50.0 });
     
     debug!("Flags applied: gender={}, breathiness={}", flags.gender, flags.breathiness);
 
-    let fs = sample_rate as i32;
     let analysis_path = get_analysis_path(&args.in_file);
     
     let features = if analysis_path.exists() {
@@ -65,33 +63,40 @@ pub fn resample(
         let mut f = File::open(&analysis_path)?;
         let mut buf = Vec::new();
         f.read_to_end(&mut buf)?;
-        bincode::deserialize::<WorldFeatures>(&buf)?
+        bincode::deserialize::<AxisFeatures>(&buf)?
     } else {
-        info!("Running WORLD analysis...");
-        let x = input_samples.to_vec();
-        let harvest_option = HarvestOption::new();
-        let (temporal_positions, f0_raw) = harvest(&x, fs, &harvest_option);
-        let f0 = stonemask(&x, fs, &temporal_positions, &f0_raw);
+        info!("Running STYDL analysis...");
+        let vocoder = StydlVocoder::new(sample_rate, 4096);
+        let fft_size = vocoder.fft_size;
         
-        let mut ct_option = CheapTrickOption::new(fs);
-        let spec = cheaptrick(&x, fs, &temporal_positions, &f0, &mut ct_option);
+        let hop_size = (sample_rate as f64 * FRAME_PERIOD / 1000.0) as usize;
+        let num_frames = input_samples.len() / hop_size;
         
-        let d4c_option = D4COption::new();
-        let ap = d4c(&x, fs, &temporal_positions, &f0, &d4c_option);
+        let mut f0 = vec![0.0; num_frames];
+        let mut spec = Vec::with_capacity(num_frames);
+        let mut ap = Vec::with_capacity(num_frames);
 
-        let fft_size = ct_option.fft_size;
-        let f0_len = f0.len() as i32;
-        
-        let mut voiced_f0: Vec<f64> = f0.iter().cloned().filter(|&f| f > 0.0).collect();
+        // 1. F0 Estimation
+        f0 = vocoder.f0_estimator.estimate(input_samples);
+        f0.truncate(num_frames); // Align
+
+        // 2. Spectral & Aperiodicity Estimation
+        for i in 0..f0.len() {
+            let start = i * hop_size;
+            let end = (start + fft_size).min(input_samples.len());
+            let chunk = &input_samples[start..end];
+            
+            spec.push(vocoder.spectral_resolver.resolve(chunk, f0[i], fft_size));
+            ap.push(vocoder.aperiodicity_estimator.estimate(chunk, f0[i], fft_size));
+        }
+
+        let mut voiced_f0: Vec<f64> = f0.iter().cloned().filter(|&f| f > 40.0).collect();
         voiced_f0.sort_by(|a, b| a.partial_cmp(b).unwrap());
         let source_base_hz = if voiced_f0.is_empty() { 261.63 } else { voiced_f0[voiced_f0.len() / 2] };
         
-        info!("Analysis complete. Frames: {}, FFT size: {}, Median F0: {:.2}Hz", f0_len, fft_size, source_base_hz);
+        info!("Analysis complete. Frames: {}, FFT size: {}, Median F0: {:.2}Hz", f0.len(), fft_size, source_base_hz);
 
-        let mgc = code_spectral_envelope(&spec, f0_len, fs, fft_size, 64);
-        let bap = code_aperiodicity(&ap, f0_len, fs);
-
-        let feats = WorldFeatures { f0, mgc, bap, source_base_hz, fft_size };
+        let feats = AxisFeatures { f0, spec, ap, source_base_hz, fft_size };
         let bin = bincode::serialize(&feats)?;
         let mut f = File::create(&analysis_path)?;
         f.write_all(&bin)?;
@@ -119,27 +124,27 @@ pub fn resample(
         linspace(consonant_src, end, (length_req * fps) as usize, true)
     };
 
-    let t_render: Vec<f64> = t_consonant.into_iter().chain(t_stretch.into_iter()).map(|x| (x * fps).clamp(0.0, (f0_len - 1) as f64)).collect();
+    let t_render: Vec<f64> = t_consonant.into_iter().chain(t_stretch.into_iter()).map(|x: f64| (x * fps).clamp(0.0, (f0_len - 1) as f64)).collect();
     let render_length = t_render.len();
     let t_sec: Vec<f64> = arange(render_length as i32).iter().map(|x| x / fps).collect();
 
     let mut f0_off_render = Vec::with_capacity(render_length);
-    let mut mgc_render: Vec<Vec<f64>> = Vec::with_capacity(render_length);
-    let mut bap_render: Vec<Vec<f64>> = Vec::with_capacity(render_length);
-    let vuv_render: Vec<bool> = t_render.iter().map(|&t| features.f0[t as usize] != 0.0).collect();
+    let mut spec_render: Vec<Vec<f64>> = Vec::with_capacity(render_length);
+    let mut ap_render: Vec<Vec<f64>> = Vec::with_capacity(render_length);
+    let vuv_render: Vec<bool> = t_render.iter().map(|&t: &f64| features.f0[t as usize] != 0.0).collect();
 
     for &t in &t_render {
         let idx0 = t.floor() as usize;
         let idx1 = (idx0 + 1).min(f0_len - 1);
         let weight = t - idx0 as f64;
         f0_off_render.push(lerp(f0_off[idx0], f0_off[idx1], weight));
-        mgc_render.push((0..features.mgc[0].len()).map(|i| lerp(features.mgc[idx0][i], features.mgc[idx1][i], weight)).collect());
-        bap_render.push((0..features.bap[0].len()).map(|i| lerp(features.bap[idx0][i], features.bap[idx1][i], weight)).collect());
+        spec_render.push((0..features.spec[0].len()).map(|i| lerp(features.spec[idx0][i], features.spec[idx1][i], weight)).collect());
+        ap_render.push((0..features.ap[0].len()).map(|i| lerp(features.ap[idx0][i], features.ap[idx1][i], weight)).collect());
     }
 
     if flags.gender != 0.0 {
         let shift = (flags.gender / 120.0).exp2();
-        for frame in mgc_render.iter_mut() {
+        for frame in spec_render.iter_mut() {
             let orig = frame.clone();
             let len = frame.len();
             for i in 0..len {
@@ -166,40 +171,33 @@ pub fn resample(
 
     if flags.breathiness != 50.0 {
         let mix = (flags.breathiness / 100.0).clamp(0.0, 1.0);
-        for frame in bap_render.iter_mut() {
+        for frame in ap_render.iter_mut() {
             for val in frame.iter_mut() { *val = lerp(*val, 1.0, mix); }
         }
     }
 
     let mut f0_p = f0_render;
-    let mut spec_p = mgc_render;
-    let mut ap_p = bap_render;
+    let mut spec_p = spec_render;
+    let mut ap_p = ap_render;
 
     for plugin in plugins.iter_mut() {
         plugin.process_features(&mut f0_p, &mut spec_p, &mut ap_p, sample_rate)?;
     }
 
-    let mut spec_r = decode_spectral_envelope(&spec_p, render_length as i32, fs, features.fft_size);
-    for frame in spec_r.iter_mut() {
+    // Smooth spectrum (internal tool)
+    for frame in spec_p.iter_mut() {
         crate::util::smooth_spectrum(frame, 3);
     }
 
-    let mut ap_r = decode_aperiodicity(&ap_p, render_length as i32, fs);
     for i in 0..render_length {
         if f0_p[i] == 0.0 {
-            for val in ap_r[i].iter_mut() { *val = 1.0; }
+            for val in ap_p[i].iter_mut() { *val = 1.0; }
         }
     }
 
-    let use_stydl = config.general.as_ref().and_then(|g| g.stydl).unwrap_or(true) || args.flags.contains("S");
-
-    let mut syn = if use_stydl {
-        info!("Using STYDL vocoder for synthesis...");
-        let mut vocoder = crate::vocoder::stydl::StydlVocoder::new(sample_rate, features.fft_size as usize);
-        vocoder.process(&f0_p, &spec_r, &ap_r, input_samples)
-    } else {
-        synthesis(&f0_p, &spec_r, &ap_r, FRAME_PERIOD, fs)
-    };
+    info!("Using STYDL vocoder for synthesis...");
+    let mut vocoder = StydlVocoder::new(sample_rate, features.fft_size);
+    let mut syn = vocoder.process(&f0_p, &spec_p, &ap_p, input_samples, &t_render);
 
     for plugin in plugins.iter_mut() {
         plugin.process_audio(&mut syn, sample_rate)?;

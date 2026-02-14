@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>STYDL - Rust Audio Synthesis Library (LGPL-3.0)</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <table width="780" border="0" align="center" cellpadding="0" cellspacing="0" class="main-table">
+        <tr>
+            <td colspan="2" class="header-cell">
+                <a href="index.html">
+                    <img src="AXIS_White.png" width="250" height="120" border="0"
+                        alt="AXIS RESAMPLER - Rust Powered Synthesis">
+                </a>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" class="top-nav">
+                <a href="index.html">Home</a> |
+                <a href="stydl.html">STYDL Docs</a> |
+                <a href="https://github.com/cyntheria/axis">GitHub Repository</a> |
+                <a href="https://github.com/cyntheria/axis/releases">Releases</a> |
+                <a href="/config.html">Plugins and Configuration</a>
+            </td>
+        </tr>
+        <tr>
+            <td width="175" valign="top" class="sidebar">
+                <div class="sidebar-section">
+                    <div class="sidebar-header">Technical Details</div>
+                    <table width="100%" cellpadding="2" cellspacing="0" class="info-table">
+                        <tr>
+                            <td>Algorithm:</td>
+                            <td>Sinusoidal (HNM)</td>
+                        </tr>
+                        <tr>
+                            <td>Dependency:</td>
+                            <td>rustfft, rand</td>
+                        </tr>
+                        <tr>
+                            <td>Platform:</td>
+                            <td>Cross-platform</td>
+                        </tr>
+                        <tr>
+                            <td>License:</td>
+                            <td>LGPL-3.0</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-header">Core Components</div>
+                    <ul>
+                        <li><a href="#engine">Synthesis Engine</a></li>
+                        <li><a href="#analyser">Spectral Analyser</a></li>
+                        <li><a href="#f0">F0 Estimator (Dio)</a></li>
+                    </ul>
+                </div>
+            </td>
+            <td valign="top" class="content-area">
+                <h2>STYDL Library</h2>
+                <p class="tagline">A modular Rust library for high-fidelity spectral audio synthesis.</p>
+
+                <p>STYDL is the heart of the AXIS resampler. It is designed as a standalone, modular library for
+                    spectral analysis and synthesis. It implements a modern <strong>Harmonic plus Noise Model
+                        (HNM)</strong>
+                    that provides smooth, crystal-clear vocals even at extreme pitch and time scales.</p>
+
+                <h3 id="engine">Sinusoidal Synthesis Engine</h3>
+                <p>The core synthesis engine uses a sum-of-sines approach for the harmonic (voiced) component and a
+                    sophisticated <strong>Constant Overlap-Add (COLA)</strong> noise engine for the aperiodic (unvoiced)
+                    component.
+                </p>
+                <ul>
+                    <li><strong>Sub-sample Accuracy:</strong> Precise phase tracking for high-frequency stability.</li>
+                    <li><strong>Coherent Phase:</strong> Ensures minimal phasing artifacts between frames.</li>
+                    <li><strong>Unified Noise:</strong> Eliminates static floor artifacts.</li>
+                </ul>
+
+                <h3 id="analyser">Integration Example</h3>
+                <p>STYDL can be integrated into any Rust project needing spectral processing:</p>
+                <div class="terminal">
+                    // Initialize the engine<br>
+                    let mut engine = StydlEngine::new(sample_rate, fft_size);<br>
+                    <br>
+                    // Synthesize from spectral envelopes<br>
+                    let audio = engine.synthesize(&f0_vec, &spec_vec, &ap_vec);
+                </div>
+
+                <h3>Portability</h3>
+                <p>Unlike many other vocoder implementations, STYDL is written in 100% safe Rust (where possible) and
+                    has zero dependencies on legacy C/C++ libraries like WORLD. This makes it trivial to compile for
+                    <strong>Windows, Linux, macOS, and FreeBSD</strong>.
+                </p>
+
+                <div class="news-box">
+                    <div class="news-header">Library Status</div>
+                    <div class="news-body">
+                        <p>STYDL is currently distributed as part of the AXIS source tree. It can be found in
+                            <code>src/vocoder/</code>. A standalone crate release is planned for the future.
+                        </p>
+                    </div>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" class="footer">
+                Copyright &copy; 2026 Cyntheria, All rights reserved.<br>
+                STYDL is free software licensed under the <a href="https://www.gnu.org/licenses/lgpl-3.0.en.html"
+                    style="color:#ffffff">LGPL-3.0</a>.
+            </td>
+        </tr>
+    </table>
+
+</body>
+
+</html>

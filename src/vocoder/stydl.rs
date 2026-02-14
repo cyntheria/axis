@@ -28,28 +28,26 @@ impl StydlVocoder {
         }
     }
 
-    pub fn process(&mut self, f0: &[f64], spectral: &[Vec<f64>], aperiodicity: &[Vec<f64>], source: &[f64]) -> Vec<f64> {
-        let mut refined_spectral = Vec::with_capacity(spectral.len());
-        let mut refined_aperiodicity = Vec::with_capacity(aperiodicity.len());
+    pub fn process(&mut self, f0: &[f64], spectral: &[Vec<f64>], aperiodicity: &[Vec<f64>], source: &[f64], _source_frames: &[f64]) -> Vec<f64> {
+        let mut refined_spectral = Vec::with_capacity(f0.len());
+        let mut refined_aperiodicity = Vec::with_capacity(f0.len());
 
+        let hop_size = 256;
         for (i, &f) in f0.iter().enumerate() {
-            let start = (i * 256).min(source.len());
+            let start = (i * hop_size).min(source.len());
             let end = (start + self.fft_size).min(source.len());
             let chunk = &source[start..end];
             
-            if chunk.is_empty() {
-                refined_spectral.push(vec![0.0; self.fft_size / 2 + 1]);
-                refined_aperiodicity.push(vec![1.0; self.fft_size / 2 + 1]);
+            if chunk.is_empty() || f < 40.0 {
+                refined_spectral.push(spectral[i].clone());
+                refined_aperiodicity.push(aperiodicity[i].clone());
                 continue;
             }
 
-            let spec = self.spectral_resolver.resolve(chunk, f, self.fft_size);
-            let ap = self.aperiodicity_estimator.estimate(chunk, f, self.fft_size);
-            
-            refined_spectral.push(spec);
-            refined_aperiodicity.push(ap);
+            refined_spectral.push(spectral[i].clone());
+            refined_aperiodicity.push(aperiodicity[i].clone());
         }
 
-        self.engine.synthesize(f0, &refined_spectral, &refined_aperiodicity, source)
+        self.engine.synthesize(f0, &refined_spectral, &refined_aperiodicity)
     }
 }

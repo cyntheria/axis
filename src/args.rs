@@ -4,7 +4,7 @@ use clap::{Parser, Subcommand};
 #[derive(Parser)]
 #[command(name = env!("CARGO_PKG_NAME"))]
 #[command(version = env!("CARGO_PKG_VERSION"))]
-#[command(about = "WORLD-based UTAU resampler on Rust.")]
+#[command(about = "High-fidelity STYDL-based UTAU resampler written in Rust.")]
 #[command(disable_help_flag = true)]
 #[command(disable_version_flag = true)]
 #[command(allow_negative_numbers = true)]

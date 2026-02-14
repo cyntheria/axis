@@ -124,6 +124,10 @@ h3 {
     text-align: left;
 }
 
+.data-table td {
+    font-size: 10px;
+}
+
 .data-row {
     background-color: #ffffff;
 }

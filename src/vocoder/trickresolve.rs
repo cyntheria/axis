@@ -41,9 +41,9 @@ impl TrickResolve {
         let mut buffer: Vec<Complex<f64>> = windowed.iter().map(|&x| Complex::new(x, 0.0)).collect();
         fft.process(&mut buffer);
 
-        // Normalize by window energy sum to match original signal power
+        // Normalize by window_sum (linear) to boost energy as suggested
         let power_spec: Vec<f64> = buffer.iter().take(fft_size / 2 + 1)
-            .map(|c| c.norm_sqr() / (window_sum * window_sum)).collect();
+            .map(|c| c.norm_sqr() / window_sum).collect();
 
         let smoothing_width = (f0 * fft_size as f64 / self.sample_rate as f64) as usize;
         let mut smoothed = vec![0.0; power_spec.len()];
@@ -53,8 +53,8 @@ impl TrickResolve {
                 sum += power_spec[i];
             }
             for i in 0..power_spec.len() {
-                // Recover harmonic energy from the smearing
-                smoothed[i] = sum; 
+                // Return mean power in the smoothing band (linear normalization)
+                smoothed[i] = sum / smoothing_width as f64; 
                 if i + smoothing_width / 2 < power_spec.len() {
                     sum += power_spec[i + smoothing_width / 2];
                 }

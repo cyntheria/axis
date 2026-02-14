@@ -20,6 +20,7 @@
         <tr>
             <td colspan="2" class="top-nav">
                 <a href="index.html">Home</a> |
+                <a href="stydl.html">STYDL Docs</a> |
                 <a href="https://github.com/cyntheria/axis">GitHub Repository</a> |
                 <a href="https://github.com/cyntheria/axis/releases">Releases</a> |
                 <a href="https://github.com/cyntheria/axis/blob/main/LICENSE">License</a> |
@@ -33,7 +34,7 @@
                     <div class="sidebar-header">Resources</div>
                     <ul>
                         <li><a href="https://github.com/cyntheria/axis">Source Code</a></li>
-                        <li><a href="https://github.com/cyntheria/axis/releases/tag/v0.1.0">Download v0.1.0</a></li>
+                        <li><a href="https://github.com/cyntheria/axis/releases/tag/v0.1.2">Download v0.1.2</a></li>
                     </ul>
                 </div>
 
@@ -42,15 +43,19 @@
                     <table width="100%" cellpadding="2" cellspacing="0" class="info-table">
                         <tr>
                             <td>Version:</td>
-                            <td>0.1.1 Alpha</td>
+                            <td>v0.1.2</td>
                         </tr>
                         <tr>
                             <td>Language:</td>
                             <td>Rust</td>
                         </tr>
                         <tr>
+                            <td>Vocoder:</td>
+                            <td>STYDL</td>
+                        </tr>
+                        <tr>
                             <td>Platform:</td>
-                            <td>Linux (ELF)</td>
+                            <td>Linux, Windows, macOS (FreeBSD soon)</td>
                         </tr>
                         <tr>
                             <td>License:</td>
@@ -80,9 +85,9 @@
                 <h2>AXIS Resampler</h2>
                 <p class="tagline">A blazingly-fast, high-fidelity UTAU resampler written in Rust.</p>
 
-                <p>AXIS is meant to be highly advanced yet lightweight with high amount of portability and speed, It
-                    uses the WORLD vocoder (via rsworld), AXIS can run on OpenUtau and UTSU (possibly UTAU aswell,
-                    untested.)</p>
+                <p>AXIS is meant to be highly advanced yet lightweight with high amount of portability and speed. It
+                    uses the <strong>STYDL Sinusoidal Engine</strong> for crystal-clear spectral synthesis,
+                    replacing the legacy WORLD vocoder. AXIS runs on OpenUtau and UTSU.</p>
 
                 <table width="100%" cellpadding="4" cellspacing="1" class="data-table">
                     <tr class="data-header">
@@ -93,13 +98,13 @@
                     </tr>
                     <tr class="data-row">
                         <td>Core Engine</td>
-                        <td>0.1.1 Alpha</td>
+                        <td>v0.1.2</td>
                         <td>LGPL-3.0</td>
                         <td><a href="https://github.com/cyntheria/axis/releases">[Link]</a></td>
                     </tr>
                     <tr class="data-row">
                         <td>Rust Crate</td>
-                        <td>0.1.1-alpha</td>
+                        <td>v0.1.2</td>
                         <td>LGPL-3.0</td>
                         <td><a href="https://github.com/cyntheria/axis">[GitHub]</a></td>
                     </tr>
@@ -117,20 +122,20 @@
                 </div>
 
                 <div class="news-box">
-                    <div class="news-header">Latest News: v0.1.2-rc1</div>
+                    <div class="news-header">Latest News: v0.1.2</div>
                     <div class="news-body">
-                        <p>Bump to v0.1.2-rc1, features include:</p>
-                        <li> WORLD synthesis refinement </li>
-                        <li> spectral smoothing</li>
-                        <li> reduce metallic artifacts</li>
-                        <li> change analysis data extension to .axxf</li>
-                        <li> phase randomization in unvoiced region</li>
+                        <p>Stable release v0.1.2, featuring the new STYDL Hybrid Engine:</p>
+                        <li><strong>STYDL Hybrid Sinusoidal:</strong> Replaces legacy WORLD synthesis completely.</li>
+                        <li><strong>Unified COLA Engine:</strong> Smoother consonants and zero background static.</li>
+                        <li><strong>High-Note Precision:</b> Sub-sample accurate phase alignment for G4+.</li>
+                        <li><strong>Optimized Normalization:</strong> Balanced dynamics and clear output. </li>
+                        <li><strong>Legacy Removal:</strong> Removed unused WORLD synthesis code.</li>
                     </div>
                 </div>
 
                 <h3>Key Features</h3>
                 <ul>
-                    <li>High-fidelity spectral analysis and synthesis. </li>
+                    <li>High-fidelity STYDL Hybrid spectral synthesis. </li>
                     <li>Written in Rust for maximum performance.</li>
                     <li>Native Linux support.</li>
                     <li>Plugins and Configuration</li>

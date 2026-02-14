@@ -99,7 +99,7 @@ checksum = "c08606f8c3cbf4ce6ec8e28fb0014a2c086708fe954eaa885384a6165172e7e8"
 
 [[package]]
 name = "axis"
-version = "0.1.2-alpha"
+version = "0.1.2"
 dependencies = [
  "anyhow",
  "bincode",
@@ -112,8 +112,6 @@ dependencies = [
  "libloading",
  "log",
  "rand",
- "rsworld",
- "rsworld-sys",
  "rusqlite",
  "rustfft",
  "serde",
@@ -874,24 +872,6 @@ checksum = "a8a1f2315036ef6b1fbacd1972e8ee7688030b0a2121edfc2a6550febd41574d"
 dependencies = [
  "hashbrown 0.16.1",
  "thiserror 2.0.18",
-]
-
-[[package]]
-name = "rsworld"
-version = "0.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5f9a17d9968e83337c1528b1589e1ee9f4373729cbd4aa6e464649bc55a1a0ec"
-dependencies = [
- "rsworld-sys",
-]
-
-[[package]]
-name = "rsworld-sys"
-version = "0.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e6f3d097f63fd46fbf37066a56d14ff44d6bafe8a9decd6f6cab2d7e4409ada0"
-dependencies = [
- "cc",
 ]
 
 [[package]]

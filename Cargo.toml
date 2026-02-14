@@ -1,14 +1,12 @@
 [package]
 name = "axis"
-version = "0.1.2-alpha"
+version = "0.1.2"
 edition = "2021"
 
 [dependencies]
-rsworld = "0.1.0"
 symphonia = { version = "0.5.5", features = ["all"] }
 clap = { version = "4.5", features = ["derive"] }
 anyhow = "1.0"
-rsworld-sys = "0.1.0"
 env_logger = "0.11.8"
 log = "0.4.29"
 serde = { version = "1.0.228", features = ["derive"] }
